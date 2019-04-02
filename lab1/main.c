@@ -2,7 +2,7 @@
  * RJESENJE 1. DOMACE ZADACE IZ OPERACIJSKIH SUSTAVA
  *
  * Autor: Davor Penzar
- * Datum: 2. IV. 2019.
+ * Datum: 3. IV. 2019.
  *
  */
 
@@ -149,18 +149,23 @@ int test_pseudo_prost (uint64_t n)
   if (n == 1)
     return 0;
 
+  /* Ako je n == 2 ili je n == 3, vrati vrijednost razlicitu od 0. */
+  if (n == 2 || n == 3)
+    return 1;
+
   /* Ako je broj n djeljiv s 2 (ako je !(n & 1)) ili ako je n djeljiv s 3 (ako
-  je !(n % 3)), vrati 0 --- broj je slozen, dakle, nije prost.  Provjera je
-  reducirana DeMorganovim zakonom. */
+  je !(n % 3)), vrati 0 --- broj n (vec je poznato da je n == 0 ili je n > 3) je
+  jednak 0 ili je slozen, dakle, nije prost.  Provjera je reducirana
+  DeMorganovim zakonom. */
   if (!(n & 1 && n % 3))
     return 0;
 
   /* Za svaki prirodni visekratnik k broja 6 razlicit od 0 provjeri djeljivost
   broja n s k - 1 i k + 1 --- ako je broj n djeljiv takvim brojem (ako je
-  !(n % (k +- 1))), vrati 0 --- broj je slozen, dakle, nije prost.  Provjera je
-  reducirana DeMorganovim zakonom.  Provjerava se djeljivost dok je k^2 <= n jer
-  je broj n > 1 prost ako i samo ako nije djeljiv nijednim prirodnim brojem iz
-  intervala (1, sqrt(n)]. */
+  !(n % (k +- 1))), vrati 0 --- broj je slozen (vec je poznato da je n > 3),
+  dakle, nije prost.  Provjera je reducirana DeMorganovim zakonom.  Provjerava
+  se djeljivost dok je k^2 <= n jer je broj n > 1 prost ako i samo ako nije
+  djeljiv nijednim prirodnim brojem iz intervala (1, sqrt(n)]. */
   for (k = 6; k <= n / k; k += 6)
     if (!((n % (k - 1)) && (n % (k + 1))))
       return 0;
