@@ -8,6 +8,7 @@
 
 /* Ukljucivanje standardne biblioteke. */
 #include <inttypes.h>
+#include <limits.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -23,8 +24,8 @@
  *
  */
 #define MS_LEN 5UL
-uint64_t MS[MS_LEN] = {0};
-size_t U = MS_LEN - 1;
+uint64_t MS[MS_LEN] = {0U};
+size_t U = MS_LEN - 1U;
 
 /**
  * Definicija prvog otkucaja procesorskog sata.
@@ -33,7 +34,7 @@ size_t U = MS_LEN - 1;
  * je, konsistentnosti radi, inicijaliziran na 0.
  *
  */
-clock_t t_start = 0;
+clock_t t_start = 0U;
 
 /**
  * Ispisi meduspremnik na stdout.
@@ -51,8 +52,8 @@ void ispisi_MS ()
 
   /* Ispisi meduspremnik na stdout u definiranom formatu. */
   printf("{ ");
-  for (i = 0; i < MS_LEN; ++i)
-    printf("%02" PRIx64 " ", MS[i] & 0xff);
+  for (i = 0U; i < MS_LEN; ++i)
+    printf("%02" PRIx64 " ", MS[i] & 0xffU);
   printf("}");
 }
 
@@ -101,19 +102,19 @@ int test_bitovi (uint64_t n)
   n < 0b111.  Naime, bilo koja kombinacija bitova u intervalu [0 .. 0b111) ne
   sadrzi 3 uzastopna ista bita (ako zanemarimo vodece nule, sto i
   zanemarujemo). */
-  while (n >= 0b111)
+  while (n >= 0b111U)
   {
     /* Spremi trenutna posljednja (najmanje znacajna bita) u varijablu
     bitovi. */
-    bitovi = (int)(n & 0b111);
+    bitovi = (int)(n & 0b111U);
 
     /* Ako je bitovi == 0 (odnosno !bitovi) ili ako je bitovi == 0b111, prekini
     rad funkcije i vrati 0 (broj sadrzi 3 uzastopne iste binarne znamenke). */
-    if (!bitovi || bitovi == 0b111)
+    if (!bitovi || bitovi == 0b111U)
       return 0;
 
     /* Transforiraj broj n bitovnom operacijom shift udesno. */
-    n >>= 1;
+    n >>= 1U;
   }
 
   /* Ako nijedna provjera kombinacija 3 uzastopna bita nije vratila 0, broj ne
@@ -146,28 +147,29 @@ int test_pseudo_prost (uint64_t n)
   uint64_t k;
 
   /* Broj 1 po definiciji nije prost --- ako je n == 1, vrati 0. */
-  if (n == 1)
+  if (n == 1U)
     return 0;
 
   /* Ako je n == 2 ili je n == 3, vrati vrijednost razlicitu od 0. */
-  if (n == 2 || n == 3)
+  if (n == 2U || n == 3U)
     return 1;
 
   /* Ako je broj n djeljiv s 2 (ako je !(n & 1)) ili ako je n djeljiv s 3 (ako
   je !(n % 3)), vrati 0 --- broj n (vec je poznato da je n == 0 ili je n > 3) je
   jednak 0 ili je slozen, dakle, nije prost.  Provjera je reducirana
   DeMorganovim zakonom. */
-  if (!(n & 1 && n % 3))
+  if (!(n & 1U && n % 3U))
     return 0;
 
   /* Za svaki prirodni visekratnik k broja 6 razlicit od 0 provjeri djeljivost
   broja n s k - 1 i k + 1 --- ako je broj n djeljiv takvim brojem (ako je
   !(n % (k +- 1))), vrati 0 --- broj je slozen (vec je poznato da je n > 3),
   dakle, nije prost.  Provjera je reducirana DeMorganovim zakonom.  Provjerava
-  se djeljivost dok je k^2 <= n jer je broj n > 1 prost ako i samo ako nije
-  djeljiv nijednim prirodnim brojem iz intervala (1, sqrt(n)]. */
-  for (k = 6; k <= n / k; k += 6)
-    if (!((n % (k - 1)) && (n % (k + 1))))
+  se djeljivost dok je k^2 <= n (dok je k <= n / k zbog prevencije "overflow-a")
+  jer je broj n > 1 prost ako i samo ako nije djeljiv nijednim prirodnim brojem
+  iz intervala (1, sqrt(n)]. */
+  for (k = 6U; k <= n / k; k += 6U)
+    if (!((n % (k - 1U)) && (n % (k + 1U))))
       return 0;
 
   /* Ako nijedna provjera djeljivosti broja n nije vratila 0, broje je prost ---
@@ -203,14 +205,14 @@ int provjera_zahtjeva ()
   inicijaliziran na 0, a azurira se NAKON ispisa.  S obzirom na to da je
   potrebno "pamtiti" indeks posljednje ispisane vrijednosti, varijabla I je
   staticka. */
-  static size_t I = 0;
+  static size_t I = 0U;
 
   /* Otkucaji procesorskog sata posljednje provjere zahtjeva i trenutne provjere
   zahjeva.  Otkucaj posljednje provjere zahtjeva inicijlizirana je na 0 (kasnije
   se azurira ako je jednaka 0).  S obzirom na to da je potrebno "pamtiti"
   vrijeme (otkucaj procesorskog sata) posljednje provjere zahtjeva, varijabla t0
   je staticka. */
-  static clock_t t0 = 0;
+  static clock_t t0 = 0U;
   clock_t t1;
 
   /* Pomocna varijabla.  Kasnije se postavlja na vrijednost iz intervala [0, 1]
@@ -261,7 +263,7 @@ int provjera_zahtjeva ()
     printf("MS[I] = 0x%" PRIx64 "\n", MS[I]);
 
     /* Azuriraj varijablu I. */
-    I = (I + 1) % MS_LEN;
+    I = (I + 1U) % MS_LEN;
 
     /* Vrati vrijednost razlicitu od 0. */
     return 1;
@@ -275,9 +277,9 @@ int provjera_zahtjeva ()
 /**
  * Glavni kod programa.
  *
- * Meduspremnik se popunjuje prostim brojevima koji ne sadrze 3 uzastopne iste
- * binarne znamenke dok provjera zahtjeva
- * (poziv funkcije provjera_zahtjeva(...)) ne vrati 0.
+ * Meduspremnik se popunjuje neparnim prostim brojevima koji ne sadrze 3
+ * uzastopne iste binarne znamenke dok provjera zahtjeva (poziv funkcije
+ * provjera_zahtjeva(...)) ne vrati 0.
  *
  */
 int main (int argc, char** argv)
@@ -298,16 +300,29 @@ int main (int argc, char** argv)
   pozivi funkcija test_bitovi(...) i test_pseudo_prost(...) ne vracaju 0. */
   do
   {
-    /* Generiraj pseudo-slucajni 64-bitovni broj (bez predzanka) i spremi ga
-    u varijablu x dok ne sadrzi 3 iste uzastopne iste binarne znamenke (dok je
-    !test_bitovi(x)) i dok nije prost (dok je !test_pseudo_prost(x)).  Provjera
-    je reducirana DeMorganovim zakonom. */
+    /* Generiraj pseudo-slucajni 64-bitovni neparni broj (bez predzanka) i
+    spremi ga u varijablu x dok ne sadrzi 3 iste uzastopne iste binarne znamenke
+    (dok je !test_bitovi(x)) i dok nije prost (dok je !test_pseudo_prost(x)).
+    Provjera je reducirana DeMorganovim zakonom. */
     do
-      x = pseudo_slucajni_64_bitovni_broj();
+    {
+      /* Dohvati i spremi u varijablu x neparni pseudo-slucajni 64-bitovni broj
+      (bez predzanka). */
+      x = pseudo_slucajni_64_bitovni_broj() | 1U;
+
+      /* Ako je x za 2 manji od najveceg moguceg reprezentabilnog broja, postavi
+      x na najveci moguci reprezentabilni broj.  NAPOMENA. Ovaj uvjet zbog
+      implementacije funkcije pseudo_slucajni_64_bitovni_broj, a koja je
+      inspirirana prijedlogom implementacije u opisu zadatka (i teorijski moguce
+      slike, to jest, minimalne sigurne domene tih implementacija su iste),
+      nikada ne ce biti zadovoljen. */
+      if (x + 2U == ULLONG_MAX)
+        x = ULLONG_MAX;
+    }
     while (!(test_bitovi(x) && test_pseudo_prost(x)));
 
     /* Azuriraj varijablu U i upisi x u meduspremnik na indeksu U. */
-    U = (U + 1) % MS_LEN;
+    U = (U + 1U) % MS_LEN;
     MS[U] = x;
   }
   while (provjera_zahtjeva());
