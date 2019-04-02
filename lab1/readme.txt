@@ -1,3 +1,5 @@
+gcc main.c -o main -lm -Wall -O
+
 $ ./main
 7.69 - MS = { 5b 00 00 00 00 }, I = 0, U = 0, MS[I] = 0x32b59b56b554a65b
 17.37 - MS = { 5b 33 6d 00 00 }, I = 1, U = 2, MS[I] = 0x26d9695b26d65533
