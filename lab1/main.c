@@ -168,7 +168,7 @@ int test_pseudo_prost (uint64_t n)
   jer je broj n > 1 prost ako i samo ako nije djeljiv nijednim prirodnim brojem
   iz intervala (1, sqrt(n)]. */
   for (k = 6U; k <= n / k; k += 6U)
-    if (!((n % (k - 1U)) && (n % (k + 1U))))
+    if (!(n % (k - 1U) && n % (k + 1U)))
       return 0;
 
   /* Ako nijedna provjera djeljivosti broja n nije vratila 0, broje je prost ---
