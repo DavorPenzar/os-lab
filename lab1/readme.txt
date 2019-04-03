@@ -1,4 +1,4 @@
-gcc main.c -o main -lm -Wall -O
+$ gcc main.c -o main -lm -Wall -O
 
 $ ./main
 7.69 - MS = { 5b 00 00 00 00 }, I = 0, U = 0, MS[I] = 0x32b59b56b554a65b
