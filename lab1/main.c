@@ -1,5 +1,5 @@
 /**
- * RJESENJE 1. DOMACE ZADACE IZ OPERACIJSKIH SUSTAVA
+ * RJESENJE 1. DOMACE ZADACE IZ KOLEGIJA OPERACIJSKI SUSTAVI
  *
  * Autor: Davor Penzar
  * Datum: 3. IV. 2019.
@@ -84,7 +84,7 @@ uint64_t pseudo_slucajni_64_bitovni_broj ()
  * Ako broj n ne sadrzi 3 iste uzastopne binarne znamenke, povratna vrijednost
  * je razlicita od 0; inace je jednaka 0.
  *
- * Slozenost funkcije reda je log_2(n) ako pretpostavimo da su sve "jednostavne"
+ * Slozenost funkcije reda je log(n) ako pretpostavimo da su sve "jednostavne"
  * operacije (operacije dobivene pozivom operatora) konstantne slozenosti.
  *
  */
@@ -135,15 +135,14 @@ int test_bitovi (uint64_t n)
  */
 int test_pseudo_prost (uint64_t n)
 {
-  /* Pomocna varijabla.  Broj n != 1 je slozen (nije prost) ako je djeljiv s 2,
-  3 ili nekim brojem oblika (6 * i) +- 1 za i >= 1.  Naime, broj je slozen ako
-  je razlicit od 1 i djeljiv barem jednim prostim brojem, a, ako je djeljiv
-  brojem oblika (6 * i) + j za i >= 1 i j iz skupa {2, 3, 4}, onda je
-  (6 * i) + j djeljivo s 2 ili 3 pa je, po tranzitivnosti djeljivosti na skupu
-  prirodnih brojeva, i n djeljiv s 2 ili 3 --- nakon provjere djeljivosti broja
-  n s 2 i 3 dovoljno je provjeravati djeljivost s brojevima oblika (6 * i) +- 1
-  za i >= 1.  U varijabli k "spremat cemo" prirodne visekratnike broja 6
-  razlicite od 0. */
+  /* Pomocna varijabla.  Broj n > 1 je slozen (nije prost) ako je djeljiv s 2, 3
+  ili nekim brojem oblika 6 * i +- 1 za i >= 1.  Naime, n > 0 je slozen ako je
+  razlicit od 1 i ima barem jedan netrivijalni djelitelj, a, ako je djeljiv
+  brojem oblika 6 * i + j za i >= 1 i j iz skupa {2, 3, 4}, onda je 6 * i + j
+  djeljivo s 2 ili 3 pa je, po tranzitivnosti djeljivosti na skupu prirodnih
+  brojeva, i n djeljiv s 2 ili 3 --- nakon provjere djeljivosti broja n s 2 i 3
+  dovoljno je provjeravati djeljivost s brojevima oblika 6 * i +- 1 za i >= 1.
+  U varijablu k "spremat cemo" prirodne visekratnike broja 6 razlicite od 0. */
   uint64_t k;
 
   /* Broj 1 po definiciji nije prost --- ako je n == 1, vrati 0. */
