@@ -132,7 +132,7 @@ int test_bitovi (uint64_t n)
  * Slozenost funkcije reda je sqrt(n) ako pretpostavimo da su sve "jednostavne"
  * operacije (operacije dobivene pozivom operatora) konstantne slozenosti.
  *
- * ISPRAVAK. Funkcija je konstantne slozenosti jer, ako u prvih UINT_MAX
+ * ISPRAVAK. Funkcija je konstantne slozenosti jer, ako u prvih INT_MAX
  * iteracija nije pronaden djelitelj broja n, n se smatra prostim (to jest,
  * pseudo-prostim) i vraca se vrijednost razlicita od 0.
  *
@@ -174,9 +174,9 @@ int test_pseudo_prost (uint64_t n)
   dakle, nije prost.  Provjera je reducirana DeMorganovim zakonom.  Provjerava
   se djeljivost dok je k^2 <= n (dok je k <= n / k zbog prevencije "overflow-a")
   jer je broj n > 1 prost ako i samo ako nije djeljiv nijednim prirodnim brojem
-  iz intervala (1, sqrt(n)].  Nakon UINT_MAX iteracija petlja se prekida i broj
+  iz intervala (1, sqrt(n)].  Nakon INT_MAX iteracija petlja se prekida i broj
   se smatra pseudo-prostim. */
-  for (i = 0U, k = 6U; i < UINT_MAX && k <= n / k; ++i, k += 6U)
+  for (i = 0U, k = 6U; i < INT_MAX && k <= n / k; ++i, k += 6U)
     if (!(n % (k - 1U) && n % (k + 1U)))
       return 0;
 
