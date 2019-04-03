@@ -132,6 +132,10 @@ int test_bitovi (uint64_t n)
  * Slozenost funkcije reda je sqrt(n) ako pretpostavimo da su sve "jednostavne"
  * operacije (operacije dobivene pozivom operatora) konstantne slozenosti.
  *
+ * ISPRAVAK. Funkcija je konstantne slozenosti jer, ako u prvih UINT_MAX
+ * iteracija nije pronaden djelitelj broja n, n se smatra prostim (to jest,
+ * pseudo-prostim) i vraca se vrijednost razlicita od 0.
+ *
  */
 int test_pseudo_prost (uint64_t n)
 {
@@ -144,6 +148,10 @@ int test_pseudo_prost (uint64_t n)
   dovoljno je provjeravati djeljivost s brojevima oblika 6 * i +- 1 za i >= 1.
   U varijablu k "spremat cemo" prirodne visekratnike broja 6 razlicite od 0. */
   uint64_t k;
+
+  /* Pomocna varijabla.  Brojac iteracija (ako je i >= UINT_MAX, trazenje
+  djelitelja se prekida). */
+  size_t i;
 
   /* Broj 1 po definiciji nije prost --- ako je n == 1, vrati 0. */
   if (n == 1U)
@@ -160,19 +168,22 @@ int test_pseudo_prost (uint64_t n)
   if (!(n & 1U && n % 3U))
     return 0;
 
+  i = 0;
+
   /* Za svaki prirodni visekratnik k broja 6 razlicit od 0 provjeri djeljivost
   broja n s k - 1 i k + 1 --- ako je broj n djeljiv takvim brojem (ako je
   !(n % (k +- 1))), vrati 0 --- broj je slozen (vec je poznato da je n > 3),
   dakle, nije prost.  Provjera je reducirana DeMorganovim zakonom.  Provjerava
   se djeljivost dok je k^2 <= n (dok je k <= n / k zbog prevencije "overflow-a")
   jer je broj n > 1 prost ako i samo ako nije djeljiv nijednim prirodnim brojem
-  iz intervala (1, sqrt(n)]. */
-  for (k = 6U; k <= n / k; k += 6U)
+  iz intervala (1, sqrt(n)].  Nakon UINT_MAX iteracija petlja se prekida i broj
+  se smatra pseudo-prostim. */
+  for (k = 6U; i < UINT_MAX && k <= n / k; ++i, k += 6U)
     if (!(n % (k - 1U) && n % (k + 1U)))
       return 0;
 
-  /* Ako nijedna provjera djeljivosti broja n nije vratila 0, broje je prost ---
-  vrati vrijednost razlicitu od 0. */
+  /* Ako nijedna provjera djeljivosti broja n nije vratila 0, broje je
+  pseudo-prost --- vrati vrijednost razlicitu od 0. */
   return 1;
 }
 
@@ -247,6 +258,8 @@ int provjera_zahtjeva ()
 
   /* Pseudo-slucajno generiraj vrijednost p iz intervala [0, 1]. */
   p = (long double)rand() / RAND_MAX;
+
+  p = 0.3L;
 
   /* Ako je p < 0.5, ispisi meduspremnik u zadanom formatu, azuriraj varijablu
   I i vrati vrijednost razlicitu od 0. */
