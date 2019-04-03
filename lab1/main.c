@@ -168,8 +168,6 @@ int test_pseudo_prost (uint64_t n)
   if (!(n & 1U && n % 3U))
     return 0;
 
-  i = 0;
-
   /* Za svaki prirodni visekratnik k broja 6 razlicit od 0 provjeri djeljivost
   broja n s k - 1 i k + 1 --- ako je broj n djeljiv takvim brojem (ako je
   !(n % (k +- 1))), vrati 0 --- broj je slozen (vec je poznato da je n > 3),
@@ -178,7 +176,7 @@ int test_pseudo_prost (uint64_t n)
   jer je broj n > 1 prost ako i samo ako nije djeljiv nijednim prirodnim brojem
   iz intervala (1, sqrt(n)].  Nakon UINT_MAX iteracija petlja se prekida i broj
   se smatra pseudo-prostim. */
-  for (k = 6U; i < UINT_MAX && k <= n / k; ++i, k += 6U)
+  for (i = 0U, k = 6U; i < UINT_MAX && k <= n / k; ++i, k += 6U)
     if (!(n % (k - 1U) && n % (k + 1U)))
       return 0;
 
@@ -258,8 +256,6 @@ int provjera_zahtjeva ()
 
   /* Pseudo-slucajno generiraj vrijednost p iz intervala [0, 1]. */
   p = (long double)rand() / RAND_MAX;
-
-  p = 0.3L;
 
   /* Ako je p < 0.5, ispisi meduspremnik u zadanom formatu, azuriraj varijablu
   I i vrati vrijednost razlicitu od 0. */
