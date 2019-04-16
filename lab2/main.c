@@ -19,7 +19,6 @@
 size_t N_dretve = 0;
 
 size_t* ID;
-
 size_t* BROJ;
 size_t* ULAZ;
 
@@ -29,6 +28,8 @@ pthread_mutex_t IO_lokot;
 pthread_mutex_t kraj_lokot;
 pthread_mutex_t KO_ulaz_lokot;
 pthread_mutex_t KO_broj_lokot;
+
+FILE* izlaz;
 
 void udi_u_KO (size_t i)
 {
@@ -98,11 +99,12 @@ void* dretva_generiranje (void* arg)
 
   while (1)
   {
-    sleep(1U);
+    sleep(1U); /* Iz nekog razloga bez ovoga program se "zamrzne". */
 
     do
       x = pseudo_slucajni_64_bitovni_broj();
-    while (!test_pseudo_prost(x));
+    while (!test_pseudo_prost(x)); /* Garantirano je da ce generirani broj
+                                      zadovoljavati bitovni test. */
 
     udi_u_KO(id);
     U = (U + 1U) % MS_LEN;
@@ -133,13 +135,13 @@ void* dretva_provjeravanje (void* arg)
     udi_u_KO(id);
     I = (I + 1U) % MS_LEN;
     y = MS[I];
-    printf("%lu, 0x%" PRIx64 ", uzeo broj\n", id, y);
+    fprintf(izlaz, "%lu, 0x%" PRIx64 ", uzeo broj.\n", id, y);
     izadi_iz_KO(id);
 
     sleep(y % 5U);
 
     pthread_mutex_lock(&IO_lokot);
-    printf("%lu, 0x%" PRIx64 ", potrosio broj\n", id, y);
+    fprintf(izlaz, "%lu, 0x%" PRIx64 ", potrosio broj.\n", id, y);
     pthread_mutex_unlock(&IO_lokot);
 
     pthread_mutex_lock(&kraj_lokot);
@@ -180,15 +182,23 @@ int main (int argc, char** argv)
 
   N_dretve = N_generatori + N_provjeravaci;
 
+/*izlaz = stdout;*/
+  izlaz = fopen("readme.txt", "at");
+
+  if (!izlaz)
+    exit(-0x1);
+
+  ID = malloc(N_dretve * sizeof *ID);
   BROJ = malloc(N_dretve * sizeof *BROJ);
   ULAZ = malloc(N_dretve * sizeof *ULAZ);
-  ID = malloc(N_dretve * sizeof *ID);
 
   if (!(BROJ && ULAZ && ID))
   {
+    fclose(izlaz);
+
+    free(ID);
     free(BROJ);
     free(ULAZ);
-    free(ID);
 
     exit(0x1);
   }
@@ -202,14 +212,27 @@ int main (int argc, char** argv)
 
   if (!(generatori && provjeravaci))
   {
-    free(generatori);
-    free(provjeravaci);
+    fclose(izlaz);
+
+    free(ID);
     free(BROJ);
     free(ULAZ);
-    free(ID);
+
+    free(generatori);
+    free(provjeravaci);
 
     exit(0x2);
   }
+
+  pthread_mutex_lock(&IO_lokot);
+  fprintf(
+    izlaz,
+    "%lu dretvi: %lu generatora + %lu provjeravaca.\n\n",
+      N_dretve,
+      N_generatori,
+      N_provjeravaci
+  );
+  pthread_mutex_unlock(&IO_lokot);
 
   for (i = 0U; i < N_generatori; ++i)
   {
@@ -219,11 +242,14 @@ int main (int argc, char** argv)
       for (j = 0U; j < i; ++j)
         pthread_cancel(generatori[j]);
 
-        free(generatori);
-        free(provjeravaci);
-        free(BROJ);
-        free(ULAZ);
-        free(ID);
+      fclose(izlaz);
+
+      free(ID);
+      free(BROJ);
+      free(ULAZ);
+
+      free(generatori);
+      free(provjeravaci);
 
       exit(0x21);
     }
@@ -241,17 +267,20 @@ int main (int argc, char** argv)
       for (j = 0U; j < i; ++j)
         pthread_cancel(provjeravaci[j]);
 
-        free(generatori);
-        free(provjeravaci);
-        free(BROJ);
-        free(ULAZ);
-        free(ID);
+      fclose(izlaz);
+
+      free(ID);
+      free(BROJ);
+      free(ULAZ);
+
+      free(generatori);
+      free(provjeravaci);
 
       exit(0x22);
     }
   }
 
-  sleep(5U);
+  sleep(30U);
 
   pthread_mutex_lock(&kraj_lokot);
   svrsi = 1;
@@ -267,11 +296,14 @@ int main (int argc, char** argv)
       for (j = 0U; j < N_provjeravaci; ++j)
         pthread_cancel(provjeravaci[j]);
 
-      free(generatori);
-      free(provjeravaci);
+      fclose(izlaz);
+
+      free(ID);
       free(BROJ);
       free(ULAZ);
-      free(ID);
+
+      free(generatori);
+      free(provjeravaci);
 
       exit(0x31);
     }
@@ -285,21 +317,30 @@ int main (int argc, char** argv)
       for (j = i + 1U; j < N_provjeravaci; ++j)
         pthread_cancel(provjeravaci[j]);
 
-      free(generatori);
-      free(provjeravaci);
+      fclose(izlaz);
+
+      free(ID);
       free(BROJ);
       free(ULAZ);
-      free(ID);
+
+      free(generatori);
+      free(provjeravaci);
 
       exit(0x32);
     }
   }
 
-  free(generatori);
-  free(provjeravaci);
+  free(ID);
   free(BROJ);
   free(ULAZ);
-  free(ID);
+
+  free(generatori);
+  free(provjeravaci);
+
+  fprintf(izlaz, "\n\n\n");
+
+  if (!(izlaz == stdout && izlaz == stderr))
+    fclose(izlaz);
 
   return EXIT_SUCCESS;
 }

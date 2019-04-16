@@ -26,6 +26,11 @@ void ispisi_MS ()
    printf("}");
 }
 
+/**
+ * Korigirano: odmah pri generiranju broja je osigurano da je neparan i da
+ * zadovoljava testiranje bitova.
+ *
+ */
 uint64_t pseudo_slucajni_64_bitovni_broj ()
 {
     static const uint64_t A = 8531648002905263869ULL;
@@ -73,8 +78,6 @@ int test_pseudo_prost (uint64_t n)
 {
   uint64_t k;
 
-  size_t i;
-
   return 1;
 
   if (n == 1U)
@@ -86,7 +89,7 @@ int test_pseudo_prost (uint64_t n)
   if (!(n & 1U && n % 3U))
     return 0;
 
-  for (i = 0U, k = 5U; i < (size_t)(INT_MAX) && k <= n / k; ++i, k += 6U)
+  for (k = 5U; k <= n / k; k += 6U)
     if (!(n % k && n % (k + 2U)))
       return 0;
 
@@ -103,10 +106,9 @@ int provjera_zahtjeva ()
   if (!t0)
     t0 = t_start;
 
-/*
+
   if ((long double)(t1 - t0) / (CLOCKS_PER_SEC) < 1.0L)
     return 1;
-*/
 
   t0 = t1;
 
