@@ -49,6 +49,10 @@ uint64_t pseudo_slucajni_64_bitovni_broj ()
     for (i = 0U; i < 5U; ++i)
       n = (n << (15ULL * (uint64_t)i)) + ((uint64_t)rand() & 0x7fffULL);
 
+    /* Ako je broj premali, pokusaj ponovo. */
+    if (n < 0x1000000000000000ULL)
+      return pseudo_slucajni_64_bitovni_broj();
+
     /* Korigiraj nizove od 3 ista bita. */
     for (i = 1U; i < 63U && n >> ((uint64_t)i + 1ULL); ++i)
       if (
