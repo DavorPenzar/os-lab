@@ -1,6 +1,11 @@
+/**
+ * Korekcija funkcija iz lab1.
+ *
+ */
+
+/* Standardna biblioteka. */
 #include <inttypes.h>
 #include <limits.h>
-#include <pthread.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -9,6 +14,7 @@
 #include <time.h>
 #include <unistd.h>
 
+/* Definicija meduspremnika i indeksa zadnje upisanog/ucitanog broja. */
 #define MS_LEN 5UL
 uint64_t MS[MS_LEN] = {0U};
 size_t U = MS_LEN - 1U;
@@ -20,6 +26,7 @@ void ispisi_MS ()
 {
    size_t i;
 
+   /* Ispisi sadrzaj medusprenkika. */
    printf("{ ");
    for (i = 0U; i < MS_LEN; ++i)
      printf("%02" PRIx64 " ", MS[i] & 0xffU);
@@ -27,28 +34,33 @@ void ispisi_MS ()
 }
 
 /**
- * Korigirano: odmah pri generiranju broja je osigurano da je neparan i da
+ * Korekcija: odmah pri generiranju broja je osigurano da je neparan i da
  * zadovoljava testiranje bitova.
  *
  */
 uint64_t pseudo_slucajni_64_bitovni_broj ()
 {
-    static const uint64_t A = 8531648002905263869ULL;
-    static const uint64_t B = 18116652324302926351ULL;
-
     uint64_t n;
 
     size_t i;
 
-    n = (uint64_t)rand() * A % B | 1U;
+    /* "Konkatenacijom" (Hornerov algoritam) generiraj broj od cca. 64 bita. */
+    n = 0U;
+    for (i = 0U; i < 5U; ++i)
+      n = (n << (15ULL * (uint64_t)i)) + ((uint64_t)rand() & 0x7fffULL);
 
-    for (i = 1U; n >> i; ++i)
+    /* Korigiraj nizove od 3 ista bita. */
+    for (i = 1U; i < 63U && n >> ((uint64_t)i + 1ULL); ++i)
       if (
-        (n >> i & 1U) == (n >> i + 1 & 1U) &&
-        (n >> i & 1U) == (n >> i - 1 & 1U)
+        ((n >> (uint64_t)i) & 1U) == ((n >> ((uint64_t)i + 1ULL)) & 1U) &&
+        ((n >> (uint64_t)i) & 1U) == ((n >> ((uint64_t)i - 1ULL)) & 1U)
       )
       {
-        n = n >> i & 1U ? n & ~(1U << i) : n | 1U << i;
+        n = (
+          ((n >> (uint64_t)i) & 1U) ?
+            (n & ~(1ULL << (uint64_t)i)) :
+            (n | (1ULL << (uint64_t)i))
+        );
 
         ++i;
       }
@@ -60,39 +72,49 @@ int test_bitovi (uint64_t n)
 {
     int bitovi;
 
-    while (n >= 0b111U)
+    /* Testiraj zadnja 3 bita od n, "shift-aj" n udesno <-- ponavljaj dok
+     * n != 0.  Ako su 3 ista bita, vrati 0. */
+    while (n >= 0b111ULL)
     {
-      bitovi = (int)(n & 0b111U);
+      bitovi = (int)(n & 0b111ULL);
 
-      if (!bitovi || bitovi == 0b111U)
+      if (!bitovi || bitovi == 0b111)
         return 0;
 
-      n >>= 1U;
+      n >>= 1ULL;
     }
 
+    /* n nema 3 ista bita pa vrati 1. */
     return 1;
 }
 
-
+/**
+ * Korekcija: Buduci da je funkcija dovoljno brza, testira se prava prostost.
+ *
+ */
 int test_pseudo_prost (uint64_t n)
 {
   uint64_t k;
 
   return 1;
 
-  if (n == 1U)
+  /* 1 nije prost, 2 i 3 jesu, a ostali brojevi djeljivi s 2 ili 3 nisu. */
+
+  if (n == 1ULL)
     return 0;
 
-  if (n == 2U || n == 3U)
+  if (n == 2ULL || n == 3ULL)
     return 1;
 
-  if (!(n & 1U && n % 3U))
+  if (!(n & 1ULL && n % 3ULL))
     return 0;
 
-  for (k = 5U; k <= n / k; k += 6U)
-    if (!(n % k && n % (k + 2U)))
+  /* Trazi, ako ima, djelitelja od n i, ako ima, vrati 0. */
+  for (k = 5ULL; k <= n / k; k += 6ULL)
+    if (!(n % k && n % (k + 2ULL)))
       return 0;
 
+  /* n je prost pa vrati 1. */
   return 1;
 }
 
@@ -106,12 +128,13 @@ int provjera_zahtjeva ()
   if (!t0)
     t0 = t_start;
 
-
+  /* Proslo je manje od 1 sekunde pa vrati 1. */
   if ((long double)(t1 - t0) / (CLOCKS_PER_SEC) < 1.0L)
     return 1;
 
   t0 = t1;
 
+  /* S 50 % vjerojatnosti ispisi sadrzaj spremnika. */
   if (rand() & 1)
   {
     I = (I + 1U) % MS_LEN;
@@ -127,5 +150,6 @@ int provjera_zahtjeva ()
     return 1;
   }
 
+  /* S 10 % vjerojatnosti vrati ne 0. */
   return !(rand() % 10U);
 }
