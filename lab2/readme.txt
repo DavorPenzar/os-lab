@@ -1,4 +1,7 @@
-gcc main.c -o main -pthread -Wall -O
+$ gcc main.c -o main -pthread -Wall -O
+
+
+
 7 dretvi: 4 generatora + 3 provjeravaca.
 
 4, 0x95555555555556aa, uzeo broj.
