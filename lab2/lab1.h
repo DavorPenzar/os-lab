@@ -40,56 +40,58 @@ void ispisi_MS ()
  */
 uint64_t pseudo_slucajni_64_bitovni_broj ()
 {
-    uint64_t n;
+  /* Generirani broj. */
+  uint64_t n;
 
-    size_t i;
+  size_t i;
 
-    /* "Konkatenacijom" (Hornerov algoritam) generiraj broj od cca. 64 bita. */
+  /* "Konkatenacijom" (Hornerov algoritam) generiraj broj od cca. 64 bita
+   * dok nije dovoljno velik. */
+  do
+  {
     n = 0U;
     for (i = 0U; i < 5U; ++i)
       n = (n << (15ULL * (uint64_t)i)) + ((uint64_t)rand() & 0x7fffULL);
+  }
+  while(n < 0x1000000000000000ULL);
 
-    /* Ako je broj premali, pokusaj ponovo. */
-    if (n < 0x1000000000000000ULL)
-      return pseudo_slucajni_64_bitovni_broj();
+  /* Korigiraj nizove od 3 ista bita. */
+  for (i = 1U; i < 63U && n >> ((uint64_t)i + 1ULL); ++i)
+    if (
+      ((n >> (uint64_t)i) & 1U) == ((n >> ((uint64_t)i + 1ULL)) & 1U) &&
+      ((n >> (uint64_t)i) & 1U) == ((n >> ((uint64_t)i - 1ULL)) & 1U)
+    )
+    {
+      n = (
+        ((n >> (uint64_t)i) & 1U) ?
+          (n & ~(1ULL << (uint64_t)i)) :
+          (n | (1ULL << (uint64_t)i))
+      );
 
-    /* Korigiraj nizove od 3 ista bita. */
-    for (i = 1U; i < 63U && n >> ((uint64_t)i + 1ULL); ++i)
-      if (
-        ((n >> (uint64_t)i) & 1U) == ((n >> ((uint64_t)i + 1ULL)) & 1U) &&
-        ((n >> (uint64_t)i) & 1U) == ((n >> ((uint64_t)i - 1ULL)) & 1U)
-      )
-      {
-        n = (
-          ((n >> (uint64_t)i) & 1U) ?
-            (n & ~(1ULL << (uint64_t)i)) :
-            (n | (1ULL << (uint64_t)i))
-        );
+      ++i;
+    }
 
-        ++i;
-      }
-
-    return n;
+  return n;
 }
 
 int test_bitovi (uint64_t n)
 {
-    int bitovi;
+  int bitovi;
 
-    /* Testiraj zadnja 3 bita od n, "shift-aj" n udesno <-- ponavljaj dok
-     * n != 0.  Ako su 3 ista bita, vrati 0. */
-    while (n >= 0b111ULL)
-    {
-      bitovi = (int)(n & 0b111ULL);
+  /* Testiraj zadnja 3 bita od n, "shift-aj" n udesno <-- ponavljaj dok
+   * n != 0.  Ako su 3 ista bita, vrati 0. */
+  while (n >= 0b111ULL)
+  {
+    bitovi = (int)(n & 0b111ULL);
 
-      if (!bitovi || bitovi == 0b111)
-        return 0;
+    if (!bitovi || bitovi == 0b111)
+      return 0;
 
-      n >>= 1ULL;
-    }
+    n >>= 1ULL;
+  }
 
-    /* n nema 3 ista bita pa vrati 1. */
-    return 1;
+  /* n nema 3 ista bita pa vrati 1. */
+  return 1;
 }
 
 /**
@@ -139,7 +141,7 @@ int provjera_zahtjeva ()
   t0 = t1;
 
   /* S 50 % vjerojatnosti ispisi sadrzaj spremnika. */
-  if (rand() & 1)
+  if ((uint64_t)rand() / (((uint64_t)(RAND_MAX) + 1ULL) / 2ULL))
   {
     I = (I + 1U) % MS_LEN;
 
@@ -155,5 +157,5 @@ int provjera_zahtjeva ()
   }
 
   /* S 10 % vjerojatnosti vrati ne 0. */
-  return !(rand() % 10U);
+  return !((uint64_t)rand() / (((uint64_t)(RAND_MAX) + 1ULL) / 10ULL));
 }
