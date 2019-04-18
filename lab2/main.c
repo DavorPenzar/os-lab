@@ -219,8 +219,10 @@ int main (int argc, char** argv)
   pthread_mutex_init(&KO_ulaz_lokot, NULL);
   pthread_mutex_init(&KO_broj_lokot, NULL);
 
-  N_generatori = 3U + (unsigned int)rand() % 3U;
-  N_provjeravaci = 3U + (unsigned int)rand() % 3U;
+  N_generatori =
+    3U + (unsigned int)rand() / (((unsigned int)(RAND_MAX) + 1U) / 3U);
+  N_provjeravaci =
+    3U + (unsigned int)rand() / (((unsigned int)(RAND_MAX) + 1U) / 3U);
 
   N_dretve = N_generatori + N_provjeravaci;
 
