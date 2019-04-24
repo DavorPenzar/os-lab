@@ -71,6 +71,7 @@ uint64_t pseudo_slucajni_64_bitovni_broj ()
       ++i;
     }
 
+  /* Vrati generirani broj. */
   return n;
 }
 
@@ -156,6 +157,6 @@ int provjera_zahtjeva ()
     return 1;
   }
 
-  /* S 10 % vjerojatnosti vrati ne 0. */
-  return !((uint64_t)rand() / (((uint64_t)(RAND_MAX) + 1ULL) / 10ULL));
+  /* S 10 % vjerojatnosti vrati 1. */
+  return (unsigned int)rand() / (((unsigned int)(RAND_MAX) + 1U) / 10U) ? 0 : 1;
 }

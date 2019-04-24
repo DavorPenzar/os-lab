@@ -23,7 +23,7 @@ size_t N_dretve = 0;
 
 /* Polja ID-a dretvi i BROJ, ULAZ za Lamportov algoritam ukljucivanja/
  * iskljucivanja. */
-size_t* ID = NULL;
+unsigned int* ID = NULL;
 unsigned int* BROJ = NULL;
 unsigned int* ULAZ = NULL;
 
@@ -40,9 +40,9 @@ pthread_mutex_t KO_broj_lokot;
 /* Izlazna datoteka (stdout ili readme.txt). */
 FILE* izlaz;
 
-void udi_u_KO (size_t i)
+void udi_u_KO (unsigned int i)
 {
-  size_t j;
+  unsigned int j;
 
   /* Postavi ULAZ[i] na 1. */
   pthread_mutex_lock(&KO_ulaz_lokot);
@@ -99,7 +99,7 @@ void udi_u_KO (size_t i)
   }
 }
 
-void izadi_iz_KO (size_t i)
+void izadi_iz_KO (unsigned int i)
 {
   /* Postavi BROJ[i] na 0. */
   pthread_mutex_lock(&KO_broj_lokot);
@@ -110,7 +110,7 @@ void izadi_iz_KO (size_t i)
 void* dretva_generiranje (void* arg)
 {
   /* ID dretve. */
-  size_t id;
+  unsigned int id;
 
   /* Generirani broj. */
   uint64_t x;
@@ -150,7 +150,7 @@ void* dretva_generiranje (void* arg)
 void* dretva_provjeravanje (void* arg)
 {
   /* ID dretve. */
-  pthread_t id;
+  unsigned int id;
 
   /* Iscitani broj. */
   uint64_t y;
@@ -288,7 +288,7 @@ int main (int argc, char** argv)
   /* Inicijaliziraj generatore. */
   for (i = 0U; i < N_generatori; ++i)
   {
-    ID[i] = i;
+    ID[i] = (unsigned int)i;
     if (pthread_create(generatori + i, NULL, dretva_generiranje, ID + i))
     {
       for (j = 0U; j < i; ++j)
@@ -313,7 +313,7 @@ int main (int argc, char** argv)
   /* Inicijaliziraj provjeravace. */
   for (i = 0U; i < N_provjeravaci; ++i)
   {
-    ID[i] = N_generatori + i;
+    ID[i] = (unsigned int)(N_generatori + i);
     if (pthread_create(provjeravaci + i, NULL, dretva_provjeravanje, ID + i))
     {
       for (j = 0U; j < N_generatori; ++j)
@@ -404,5 +404,6 @@ int main (int argc, char** argv)
     fclose(izlaz);
   }
 
+  /* Uspjesno zavrsi program. */
   return EXIT_SUCCESS;
 }
