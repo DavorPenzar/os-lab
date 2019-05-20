@@ -176,16 +176,16 @@ void* dretva_provjeravanje (void* arg)
     I = (I + 1U) % MS_LEN;
     y = MS[I];
     pthread_mutex_lock(&IO_lokot);
-    fprintf(izlaz, "%lu, 0x%" PRIx64 ", uzeo broj.\n", id, y);
+    fprintf(izlaz, "%u, 0x%" PRIx64 ", uzeo broj.\n", id, y);
     pthread_mutex_unlock(&IO_lokot);
     izadi_iz_KO(id);
 
     /* Cekaj y mod 5 sekundi. */
-    sleep(y % 5U);
+    sleep(y % 5ULL);
 
     /* Ispisi potrosnju broja. */
     pthread_mutex_lock(&IO_lokot);
-    fprintf(izlaz, "%lu, 0x%" PRIx64 ", potrosio broj.\n", id, y);
+    fprintf(izlaz, "%u, 0x%" PRIx64 ", potrosio broj.\n", id, y);
     pthread_mutex_unlock(&IO_lokot);
   }
 
