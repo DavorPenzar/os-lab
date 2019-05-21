@@ -1,3 +1,10 @@
+#if defined A && defined B
+  #if A == B
+    #undef A
+    #undef B
+  #endif /* A, B */
+#endif /* A, B */
+
 #if !(defined A && defined B)
   #if defined A
     #undef A
@@ -11,10 +18,19 @@
   #define B 1
 #endif /* A, B */
 
+
+
+#define VARIJANTA_ZADATKA A
+/*#define VARIJANTA_ZADATKA B*/
+
+
+
 #ifndef VARIJANTA_ZADATKA
   #define VARIJANTA_ZADATKA A
 /*#define VARIJANTA_ZADATKA B*/
 #endif /* VARIJANTA_ZADATKA */
+
+
 
 #include <inttypes.h>
 #include <limits.h>
