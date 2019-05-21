@@ -277,7 +277,7 @@ int main (int argc, char** argv)
       free(generatori);
       free(provjeravaci);
 
-      exit(0x21);
+      exit(0x31);
     }
   }
 
@@ -300,7 +300,7 @@ int main (int argc, char** argv)
       free(generatori);
       free(provjeravaci);
 
-      exit(0x22);
+      exit(0x32);
     }
   }
 
@@ -327,7 +327,7 @@ int main (int argc, char** argv)
       free(generatori);
       free(provjeravaci);
 
-      exit(0x31);
+      exit(0x41);
     }
   }
 
@@ -358,7 +358,7 @@ int main (int argc, char** argv)
       free(generatori);
       free(provjeravaci);
 
-      exit(0x32);
+      exit(0x42);
     }
   }
 
