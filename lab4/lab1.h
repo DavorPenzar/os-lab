@@ -33,6 +33,8 @@ uint64_t pseudo_slucajni_64_bitovni_broj ()
   }
   while(n < 0x1000000000000000ULL);
 
+  n |= 1ULL;
+
   for (i = 1U; i < 63U && n >> ((uint64_t)i + 1ULL); ++i)
     if (
       ((n >> (uint64_t)i) & 1U) == ((n >> ((uint64_t)i + 1ULL)) & 1U) &&
@@ -80,7 +82,7 @@ int test_pseudo_prost (uint64_t n)
   if (n == 2ULL || n == 3ULL)
     return 1;
 
-  if (!(n & 1ULL && n % 3ULL))
+  if (!((n & 1ULL) && (n % 3ULL)))
     return 0;
 
   for (k = 5ULL; k <= n / k; k += 6ULL)

@@ -58,6 +58,16 @@
 #define MEM_LEN 64UL
 long int MEM[MEM_LEN] = {0L};
 
+struct MEM_BLOK
+{
+  size_t i;
+  size_t n;
+  struct MEM_BLOK* prethodni;
+  struct MEM_BLOK* sljedeci;
+};
+
+struct MEM_BLOK* blokovi = NULL;
+
 size_t N_dretve = 0;
 
 unsigned int* ID = NULL;
@@ -79,6 +89,179 @@ size_t novi_brojevi = 0;
 #endif /* VARIJANTA_ZADATKA */
 
 FILE* izlaz;
+
+void inicijaliziraj_blokove ()
+{
+  blokovi = malloc(sizeof *blokovi);
+  if (!blokovi)
+    exit(-0x21);
+  blokovi->i = 0U;
+  blokovi->n = MEM_LEN;
+  blokovi->prethodni = NULL;
+  blokovi->sljedeci = NULL;
+}
+
+void oslobodi_blokove ()
+{
+  struct MEM_BLOK* aux;
+
+  while (blokovi)
+  {
+    aux = blokovi->sljedeci;
+
+    if (blokovi->sljedeci)
+      blokovi->sljedeci->prethodni = NULL;
+
+    blokovi->i = 0U;
+    blokovi->n = 0U;
+    blokovi->prethodni = NULL;
+    blokovi->sljedeci = NULL;
+    free(blokovi);
+
+    blokovi = aux;
+  }
+}
+
+int spoji_blokove_unazad (struct MEM_BLOK* blok0, struct MEM_BLOK* blok1)
+{
+  if (!(blok0 && blok1))
+    return -1;
+  if (blok0->i + blok0->n != blok1->i)
+    return 1;
+
+  blok0->n += blok1->n;
+
+  if (blokovi == blok1)
+  {
+    blokovi = blokovi->sljedeci;
+    if (blokovi)
+      blokovi->prethodni = NULL;
+
+    blok1->i = 0U;
+    blok1->n = 0U;
+    blok1->prethodni = NULL;
+    blok1->sljedeci = NULL;
+    free(blok1);
+  }
+  else
+  {
+    if (blok1->prethodni)
+      blok1->prethodni->sljedeci = blok1->sljedeci;
+    if (blok1->sljedeci)
+      blok1->sljedeci->prethodni = blok1->prethodni;
+
+    blok1->i = 0U;
+    blok1->n = 0U;
+    blok1->prethodni = NULL;
+    blok1->sljedeci = NULL;
+    free(blok1);
+  }
+
+  return 0;
+}
+
+int spoji_blokove_unaprijed (struct MEM_BLOK* blok0, struct MEM_BLOK* blok1)
+{
+  if (!(blok0 && blok1))
+    return -1;
+  if (blok0->i + blok0->n != blok1->i)
+    return 1;
+
+  blok1->i = blok0->i;
+  blok1->n += blok0->n;
+
+  if (blokovi == blok0)
+  {
+    blokovi = blokovi->sljedeci;
+    if (blokovi)
+      blokovi->prethodni = NULL;
+
+    blok0->i = 0U;
+    blok0->n = 0U;
+    blok0->prethodni = NULL;
+    blok0->sljedeci = NULL;
+    free(blok0);
+  }
+  else
+  {
+    if (blok0->prethodni)
+      blok0->prethodni->sljedeci = blok0->sljedeci;
+    if (blok0->sljedeci)
+      blok0->sljedeci->prethodni = blok0->prethodni;
+
+    blok0->i = 0U;
+    blok0->n = 0U;
+    blok0->prethodni = NULL;
+    blok0->sljedeci = NULL;
+    free(blok0);
+  }
+
+  return 0;
+}
+
+int pomakni_naprijed (struct MEM_BLOK* blok)
+{
+  int t;
+
+  struct MEM_BLOK* aux0;
+  struct MEM_BLOK* aux1;
+
+  if (!blok)
+    return -1;
+  if (!blok->prethodni)
+    return 1;
+
+  t = blokovi == blok->prethodni ? 1 : 0;
+
+  aux0 = blok->prethodni;
+  aux1 = blok->sljedeci;
+
+  if (blok->prethodni->prethodni)
+    blok->prethodni->prethodni->sljedeci = blok;
+  blok->prethodni = blok->prethodni->prethodni;
+  blok->sljedeci = aux0;
+  blok->sljedeci->prethodni = blok;
+  blok->sljedeci->sljedeci = aux1;
+  if (blok->sljedeci->sljedeci)
+    blok->sljedeci->sljedeci->prethodni = blok->sljedeci;
+
+  if (t)
+    blokovi = blok;
+
+  return 0;
+}
+
+int pomakni_nazad (struct MEM_BLOK* blok)
+{
+  int t;
+
+  struct MEM_BLOK* aux0;
+  struct MEM_BLOK* aux1;
+
+  if (!blok)
+    return -1;
+  if (!blok->sljedeci)
+    return 1;
+
+  t = blokovi == blok ? 1 : 0;
+
+  aux0 = blok->prethodni;
+  aux1 = blok->sljedeci;
+
+  if (blok->sljedeci->sljedeci)
+    blok->sljedeci->sljedeci->prethodni = blok;
+  blok->sljedeci = blok->sljedeci->sljedeci;
+  blok->prethodni = aux1;
+  blok->prethodni->sljedeci = blok;
+  blok->prethodni->prethodni = aux0;
+  if (blok->prethodni->prethodni)
+    blok->prethodni->prethodni->sljedeci = blok->prethodni;
+
+  if (t)
+    blokovi = blok->prethodni;
+
+  return 0;
+}
 
 void udi_u_KO (unsigned int i)
 {
@@ -147,49 +330,130 @@ void objavi_slobodnu_memoriju (unsigned int i)
 
 int zauzmi_memoriju (unsigned int i, size_t n)
 {
-  size_t najbolji_indeks;
-  size_t najbolja_duljina;
+  struct MEM_BLOK* blok;
 
   size_t r;
-  size_t k;
 
-  najbolji_indeks = MEM_LEN;
-  najbolja_duljina = MEM_LEN + 1U;
+  if (!n)
+    return 0;
 
-  for (r = 0U; r < MEM_LEN; ++r)
-  {
-    if (MEM[r] != -1L)
-      continue;
+  for (blok = blokovi; blok; blok = blok->sljedeci)
+    if (n <= blok->n)
+      break;
 
-    for (k = 1; r + k < MEM_LEN; ++k)
-      if (MEM[r + k] != -1L)
-        break;
-
-    if (n <= k && k < najbolja_duljina)
-    {
-      najbolji_indeks = r;
-      najbolja_duljina = k;
-    }
-
-    r += k;
-  }
-
-  if (najbolji_indeks == MEM_LEN)
+  if (!blok)
     return 1;
 
-  for (r = 0; r < n; ++r)
-    MEM[najbolji_indeks + r] = i;
+  for (r = 0U; r < n; ++r)
+    MEM[blok->i + r] = i;
+
+  blok->i += n;
+  blok->n -= n;
+
+  if (!blok->n)
+  {
+    if (blokovi == blok)
+    {
+      blokovi = blokovi->sljedeci;
+      if (blokovi)
+        blokovi->prethodni = NULL;
+
+      blok->i = 0U;
+      blok->n = 0U;
+      blok->prethodni = NULL;
+      blok->sljedeci = NULL;
+      free(blok);
+    }
+    else
+    {
+      if (blok->prethodni)
+        blok->prethodni->sljedeci = blok->sljedeci;
+      if (blok->sljedeci)
+        blok->sljedeci->prethodni = blok->prethodni;
+
+      blok->i = 0U;
+      blok->n = 0U;
+      blok->prethodni = NULL;
+      blok->sljedeci = NULL;
+      free(blok);
+    }
+
+    return 0;
+  }
+
+  while (blok->prethodni)
+  {
+    if (
+      blok->n > blok->prethodni->n ||
+      (blok->n == blok->prethodni->n && blok->i > blok->prethodni->i)
+    )
+      break;
+
+    pomakni_naprijed(blok);
+  }
 
   return 0;
 }
 
 int oslobodi_memoriju (unsigned int i)
 {
+  size_t n;
+
+  struct MEM_BLOK* blok;
+
+  struct MEM_BLOK* aux;
+
   size_t r;
 
+  n = 0U;
   for (r = 0U; r < MEM_LEN; ++r)
     if (MEM[r] == i)
-      MEM[r] = -1L;
+    {
+      for (n = 0U; r + n < MEM_LEN; ++n)
+      {
+        if (MEM[r + n] != i)
+          break;
+        MEM[r + n] = -1L;
+      }
+
+      break;
+    }
+
+  if (!n)
+    return 0;
+
+  if (r >= MEM_LEN)
+    return -1;
+
+  blok = malloc(sizeof *blok);
+  if (!blok)
+    exit(-0x23);
+  blok->i = r;
+  blok->n = n;
+  blok->prethodni = NULL;
+  blok->sljedeci = blokovi;
+  blokovi = blok;
+  if (blokovi->sljedeci)
+    blokovi->sljedeci->prethodni = blokovi;
+
+  for (aux = blokovi; aux; aux = aux->sljedeci)
+  {
+    if (!spoji_blokove_unaprijed(aux, blok))
+      aux = blok;
+    if (!spoji_blokove_unazad(blok, aux))
+      aux = blok;
+  }
+
+  while (blok->sljedeci)
+  {
+    if (
+      blok->n < blok->sljedeci->n ||
+      (blok->n == blok->sljedeci->n && blok->i < blok->sljedeci->i)
+    )
+      break;
+
+    pomakni_nazad(blok);
+  }
 
   return 0;
 }
@@ -368,6 +632,8 @@ int main (int argc, char** argv)
 
   memset(MEM, 0xFF, MEM_LEN * sizeof *MEM);
 
+  inicijaliziraj_blokove();
+
   N_generatori =
     3U + (unsigned int)rand() / (((unsigned int)(RAND_MAX) + 1U) / 3U);
   N_provjeravaci =
@@ -379,13 +645,19 @@ int main (int argc, char** argv)
 /*izlaz = fopen("readme.txt", "at");*/
 
   if (!izlaz)
+  {
+    oslobodi_blokove();
+
     exit(-0x1);
+  }
 
   ID = malloc(N_dretve * sizeof *ID);
 
   if (!ID)
   {
     fclose(izlaz);
+
+    oslobodi_blokove();
 
     free(ID);
 
@@ -400,6 +672,8 @@ int main (int argc, char** argv)
   if (!(generatori && provjeravaci))
   {
     fclose(izlaz);
+
+    oslobodi_blokove();
 
     free(ID);
 
@@ -429,6 +703,8 @@ int main (int argc, char** argv)
 
       fclose(izlaz);
 
+      oslobodi_blokove();
+
       free(ID);
 
       free(generatori);
@@ -451,6 +727,8 @@ int main (int argc, char** argv)
         pthread_cancel(provjeravaci[j]);
 
       fclose(izlaz);
+
+      oslobodi_blokove();
 
       free(ID);
 
@@ -479,6 +757,8 @@ int main (int argc, char** argv)
 
       fclose(izlaz);
 
+      oslobodi_blokove();
+
       free(ID);
 
       free(generatori);
@@ -488,7 +768,6 @@ int main (int argc, char** argv)
     }
   }
 
-/* Osiguraj da nema "deadlocka". */
 #if VARIJANTA_ZADATKA == A
   for (i = 0U; i < N_provjeravaci; ++i)
     sem_post(&novi_brojevi_semafor);
@@ -498,7 +777,6 @@ int main (int argc, char** argv)
 
   for (i = 0U; i < N_provjeravaci; ++i)
   {
-    /* Osiguraj da nema "deadlocka". */
 #if VARIJANTA_ZADATKA == A
 #elif VARIJANTA_ZADATKA == B
     pthread_cond_broadcast(&novi_broj_uvjet);
@@ -512,6 +790,8 @@ int main (int argc, char** argv)
 
       fclose(izlaz);
 
+      oslobodi_blokove();
+
       free(ID);
 
       free(generatori);
@@ -520,6 +800,8 @@ int main (int argc, char** argv)
       exit(0x42);
     }
   }
+
+  oslobodi_blokove();
 
   free(ID);
 
