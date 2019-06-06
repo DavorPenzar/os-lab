@@ -3,7 +3,7 @@ $ # nego sto sam procitao zadatak s razumijevanjem sam ga rijesio pa nisam bio
 $ # svjestan da je dovoljno rijesiti samo jednu varijantu.  Moguce da B varijanta
 $ # nije u potpunosti tocna.
 $ #
-$ # Toplo preporucam da u linijama 644-645 u main.c bude osigurano da je varijabla
+$ # Toplo preporucam da u linijama 641-642 u main.c bude osigurano da je varijabla
 $ # izlaz postavljena na stdout jer je u tom slucaju ispis lijepo obojan (na
 $ # primjer, slobodni dio memorije obojan je u zeleno, a zauzeti u crveno) ---
 $ # barem u suvremenim Linux terminalima.

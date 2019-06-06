@@ -17,8 +17,6 @@ uint64_t MS[MS_LEN] = {0U};
 size_t U = MS_LEN - 1U;
 size_t I = MS_LEN - 1U;
 
-clock_t t_start = 0;
-
 uint64_t pseudo_slucajni_64_bitovni_broj ()
 {
   uint64_t n;
@@ -76,7 +74,7 @@ int test_pseudo_prost (uint64_t n)
 
   return 1;
 
-  if (n == 1ULL)
+  if (n <= 1ULL)
     return 0;
 
   if (n == 2ULL || n == 3ULL)

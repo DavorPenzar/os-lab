@@ -199,7 +199,7 @@ int spoji_blokove_unaprijed (struct MEM_BLOK* blok0, struct MEM_BLOK* blok1)
   return 0;
 }
 
-int pomakni_naprijed (struct MEM_BLOK* blok)
+int pomakni_blok_naprijed (struct MEM_BLOK* blok)
 {
   int t;
 
@@ -231,7 +231,7 @@ int pomakni_naprijed (struct MEM_BLOK* blok)
   return 0;
 }
 
-int pomakni_nazad (struct MEM_BLOK* blok)
+int pomakni_blok_nazad (struct MEM_BLOK* blok)
 {
   int t;
 
@@ -389,7 +389,7 @@ int zauzmi_memoriju (unsigned int i, size_t n)
     )
       break;
 
-    pomakni_naprijed(blok);
+    pomakni_blok_naprijed(blok);
   }
 
   return 0;
@@ -452,7 +452,7 @@ int oslobodi_memoriju (unsigned int i)
     )
       break;
 
-    pomakni_nazad(blok);
+    pomakni_blok_nazad(blok);
   }
 
   return 0;
@@ -612,7 +612,8 @@ int main (int argc, char** argv)
 
   srand(time(NULL));
 
-  t_start = clock();
+  memset(MEM, 0xFF, MEM_LEN * sizeof *MEM);
+  inicijaliziraj_blokove();
 
   kraj = 0;
 
@@ -629,10 +630,6 @@ int main (int argc, char** argv)
   pthread_cond_init(&slobodna_memorija_uvjet, NULL);
   novi_brojevi = 0;
 #endif /* VARIJANTA_ZADATKA */
-
-  memset(MEM, 0xFF, MEM_LEN * sizeof *MEM);
-
-  inicijaliziraj_blokove();
 
   N_generatori =
     3U + (unsigned int)rand() / (((unsigned int)(RAND_MAX) + 1U) / 3U);
