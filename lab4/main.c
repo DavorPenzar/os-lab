@@ -652,7 +652,8 @@ int main (int argc, char** argv)
 
   if (!ID)
   {
-    fclose(izlaz);
+    if (!(izlaz == stdout || izlaz == stderr))
+      fclose(izlaz);
 
     oslobodi_blokove();
 
@@ -668,7 +669,8 @@ int main (int argc, char** argv)
 
   if (!(generatori && provjeravaci))
   {
-    fclose(izlaz);
+    if (!(izlaz == stdout || izlaz == stderr))
+      fclose(izlaz);
 
     oslobodi_blokove();
 
@@ -698,7 +700,8 @@ int main (int argc, char** argv)
       for (j = 0U; j < i; ++j)
         pthread_cancel(generatori[j]);
 
-      fclose(izlaz);
+      if (!(izlaz == stdout || izlaz == stderr))
+        fclose(izlaz);
 
       oslobodi_blokove();
 
@@ -723,7 +726,8 @@ int main (int argc, char** argv)
       for (j = 0U; j < i; ++j)
         pthread_cancel(provjeravaci[j]);
 
-      fclose(izlaz);
+      if (!(izlaz == stdout || izlaz == stderr))
+        fclose(izlaz);
 
       oslobodi_blokove();
 
@@ -752,7 +756,8 @@ int main (int argc, char** argv)
       for (j = 0U; j < N_provjeravaci; ++j)
         pthread_cancel(provjeravaci[j]);
 
-      fclose(izlaz);
+      if (!(izlaz == stdout || izlaz == stderr))
+        fclose(izlaz);
 
       oslobodi_blokove();
 
@@ -785,7 +790,8 @@ int main (int argc, char** argv)
       for (j = i + 1U; j < N_provjeravaci; ++j)
         pthread_cancel(provjeravaci[j]);
 
-      fclose(izlaz);
+      if (!(izlaz == stdout || izlaz == stderr))
+        fclose(izlaz);
 
       oslobodi_blokove();
 
