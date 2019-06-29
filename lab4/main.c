@@ -492,15 +492,38 @@ void ispisi_potrosio_broj (unsigned int i, uint64_t x)
 
 void ispisi_memoriju (void)
 {
+  int t;
+
   size_t i;
 
+  t = 0;
+  if (izlaz == stdout)
+    fprintf(izlaz, KGRN);
   for (i = 0U; i < MEM_LEN; ++i)
   {
     if (MEM[i] == -1L)
-      fprintf(izlaz, izlaz == stdout ? (KGRN "-" KNRM) : "-");
+    {
+      if (t)
+      {
+        t = 0;
+        if (izlaz == stdout)
+          fprintf(izlaz, KGRN);
+      }
+      fprintf(izlaz, "-");
+    }
     else
-      fprintf(izlaz, izlaz == stdout ? (KRED "%lx" KNRM) : "%lx", MEM[i]);
+    {
+      if (!t)
+      {
+        t = 1;
+        if (izlaz == stdout)
+          fprintf(izlaz, KRED);
+      }
+      fprintf(izlaz, "%lx", MEM[i]);
+    }
   }
+  if (izlaz == stdout)
+    fprintf(izlaz, KNRM);
 }
 
 void* dretva_generiranje (void* arg)

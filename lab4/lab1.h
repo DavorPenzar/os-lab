@@ -12,6 +12,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#define MAX_PRIM USHRT_MAX
+
 #define MS_LEN 5UL
 uint64_t MS[MS_LEN] = {0U};
 size_t U = MS_LEN - 1U;
@@ -72,8 +74,6 @@ int test_pseudo_prost (uint64_t n)
 {
   uint64_t k;
 
-  return 1;
-
   if (n <= 1ULL)
     return 0;
 
@@ -83,7 +83,7 @@ int test_pseudo_prost (uint64_t n)
   if (!((n & 1ULL) && (n % 3ULL)))
     return 0;
 
-  for (k = 5ULL; k <= n / k; k += 6ULL)
+  for (k = 5ULL; k < (MAX_PRIM) && k <= n / k; k += 6ULL)
     if (!(n % k && n % (k + 2ULL)))
       return 0;
 
